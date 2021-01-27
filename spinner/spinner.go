@@ -6,12 +6,18 @@ import (
 	"time"
 )
 
-//Default return spinner with message = "In progress" and spinning sticks.
+var (
+	defaultMessage    string   = "In Progress"
+	defaultCharacters []string = []string{"-", "\\", "|", "/"}
+	defaultDelay      int      = 200
+)
+
+//Default return spinner with message = "In progress" and spinning sticks. Delay is 200ms
 func Default() *Spinner {
 	return &Spinner{
-		Message:    "In Progress",
-		Characters: []string{"-", "\\", "|", "/"},
-		Delay:      200,
+		Message:    defaultMessage,
+		Characters: defaultCharacters,
+		Delay:      defaultDelay,
 	}
 }
 
@@ -37,6 +43,7 @@ func (s *Spinner) Start() func() {
 			for _, val := range s.Characters {
 				select {
 				case <-s.stopChan:
+					fmt.Printf("\r")
 					return
 				default:
 					fmt.Printf("\r%s ... %s", s.Message, val)
@@ -47,5 +54,34 @@ func (s *Spinner) Start() func() {
 	}()
 	return func() {
 		s.stopChan <- struct{}{}
+	}
+}
+
+//Start simplest function to start a spinner. Values are replaced with default values if 0 / nil / blank provided
+func Start(message string, characters []string, delay int) func() {
+	spinner := &Spinner{stopChan: make(chan struct{}, 1)}
+
+	if message == "" {
+		spinner.Message = defaultMessage
+	} else {
+		spinner.Message = message
+	}
+
+	if len(characters) == 0 {
+		spinner.Characters = defaultCharacters
+	} else {
+		spinner.Characters = characters
+	}
+
+	if delay == 0 {
+		spinner.Delay = defaultDelay
+	} else {
+		spinner.Delay = delay
+	}
+
+	spinner.Start()
+
+	return func() {
+		spinner.stopChan <- struct{}{}
 	}
 }

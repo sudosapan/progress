@@ -15,6 +15,10 @@ func main() {
 	}
 
 	stopFunc := spin.Start()
-	time.AfterFunc(2*time.Second, stopFunc)
+	time.AfterFunc(4*time.Second, stopFunc)
+	time.Sleep(5 * time.Second)
+
+	stopFunc = spinner.Start("Another spinner", []string{"-", "\\", "|", "/"}, 200)
+	time.AfterFunc(4*time.Second, stopFunc)
 	time.Sleep(5 * time.Second)
 }
