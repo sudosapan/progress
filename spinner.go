@@ -1,5 +1,5 @@
 //Package spinner Package for spinning progress markers. Like in place spinning sticks
-package spinner
+package progress
 
 import (
 	"fmt"
