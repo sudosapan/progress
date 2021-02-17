@@ -7,35 +7,27 @@ import (
 )
 
 var (
-	defaultMessage    string   = "In Progress"
-	defaultCharacters []string = []string{"-", "\\", "|", "/"}
-	defaultDelay      int      = 200
+	defaultMessage    string = "In Progress"
+	defaultCharacters []rune = []rune{'-', '\\', '|', '/'}
+	defaultDelay      int    = 200
 )
-
-//Default return spinner with message = "In progress" and spinning sticks. Delay is 200ms
-func Default() *Spinner {
-	return &Spinner{
-		Message:    defaultMessage,
-		Characters: defaultCharacters,
-		Delay:      defaultDelay,
-	}
-}
 
 //Spinner struct for the spinner entity.
 type Spinner struct {
 	stopChan chan struct{}
 	//Progress message
 	Message string
-	//Spinning strings, Be creative here.
-	Characters []string
-	//Time in microseconds to wait between re-draws.
+	//Characters to cycle between.
+	Characters []rune
+	//Lesser value faster animation.
 	Delay int
 }
 
 //Start Starts the spinning progress, by printing strings in s.Characters for given delay.
 //
-// This runs in a go routine and can be stopped by the stop function returned.
-func (s *Spinner) Start() func() {
+// Stop the spinner with Spinner.Stop.
+func (s *Spinner) Start() {
+	s.swapDefaults()
 	s.stopChan = make(chan struct{}, 1)
 
 	go func() {
@@ -46,42 +38,32 @@ func (s *Spinner) Start() func() {
 					fmt.Printf("\r")
 					return
 				default:
-					fmt.Printf("\r%s ... %s", s.Message, val)
-					time.Sleep(200 * time.Millisecond)
+					fmt.Printf("\r%s ... %c", s.Message, val)
+					time.Sleep(time.Duration(s.Delay) * time.Millisecond)
 				}
 			}
 		}
 	}()
-	return func() {
-		s.stopChan <- struct{}{}
-	}
+
 }
 
-//Start simplest function to start a spinner. Values are replaced with default values if 0 / nil / blank provided
-func Start(message string, characters []string, delay int) func() {
-	spinner := &Spinner{stopChan: make(chan struct{}, 1)}
-
-	if message == "" {
-		spinner.Message = defaultMessage
-	} else {
-		spinner.Message = message
+//Stop Function to stop the spinner. Does nothing spinner start has not been called yet.
+func (s *Spinner) Stop() {
+	if s.stopChan == nil {
+		// Spinner not yet started
+		return
 	}
+	s.stopChan <- struct{}{}
+}
 
-	if len(characters) == 0 {
-		spinner.Characters = defaultCharacters
-	} else {
-		spinner.Characters = characters
+func (s *Spinner) swapDefaults() {
+	if s.Message == "" {
+		s.Message = defaultMessage
 	}
-
-	if delay == 0 {
-		spinner.Delay = defaultDelay
-	} else {
-		spinner.Delay = delay
+	if len(s.Characters) == 0 {
+		s.Characters = defaultCharacters
 	}
-
-	spinner.Start()
-
-	return func() {
-		spinner.stopChan <- struct{}{}
+	if s.Delay <= 0 {
+		s.Delay = defaultDelay
 	}
 }

@@ -11,14 +11,14 @@ func main() {
 	spin := &spinner.Spinner{
 		Message:    "Showing example of spinner",
 		Delay:      200,
-		Characters: []string{"-", "\\", "|", "/"},
+		Characters: []rune{'-', '\\', '|', '/'},
 	}
-
-	stopFunc := spin.Start()
-	time.AfterFunc(4*time.Second, stopFunc)
+	spin.Start()
+	time.AfterFunc(4*time.Second, spin.Stop)
 	time.Sleep(5 * time.Second)
 
-	stopFunc = spinner.Start("Another spinner", []string{"-", "\\", "|", "/"}, 200)
-	time.AfterFunc(4*time.Second, stopFunc)
+	spin = &spinner.Spinner{}
+	spin.Start()
+	time.AfterFunc(4*time.Second, spin.Stop)
 	time.Sleep(5 * time.Second)
 }
