@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	defaultMessage    string = "In Progress"
-	defaultCharacters []rune = []rune{'-', '\\', '|', '/'}
-	defaultDelay      int    = 200
+	defaultMessage    = "In Progress"
+	defaultCharacters = []rune{'-', '\\', '|', '/'}
+	defaultDelay      = 200
 )
 
 //Spinner struct for the spinner entity.
@@ -44,7 +44,6 @@ func (s *Spinner) Start() {
 			}
 		}
 	}()
-
 }
 
 //Stop Function to stop the spinner. Does nothing spinner start has not been called yet.
